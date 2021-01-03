@@ -1,3 +1,5 @@
+const MissingParamError = require('../errors/missing-param-error')
+
 class EmitLiveData {
 	
 	constructor (emitter) {
@@ -5,6 +7,15 @@ class EmitLiveData {
 	}
 
 	async send (notificationName, payload) {
+
+		if (!notificationName) {
+			throw new MissingParamError('notificationName')
+		}
+
+		if (!payload) {
+			throw new MissingParamError('payload')
+		}
+
 		await this.emitter.emit(notificationName, payload)
 	}
 }
@@ -33,6 +44,13 @@ const makeSut = () => {
 }
 
 describe('Emit Live Data', () => {
+
+	test('Should throw if no params are provided', async () => {
+		const { sut } = makeSut()
+		expect(sut.send()).rejects.toThrow(new MissingParamError('notificationName'))
+		expect(sut.send('any_notificationName')).rejects.toThrow(new MissingParamError('payload'))
+	})
+
 	test('Should call emitter with correct values', async () => {
 		const { sut, socketio } = makeSut()
 		await sut.send('any_notificationName', 'any_payload')
