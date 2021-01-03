@@ -6,12 +6,13 @@ module.exports = class UpdateOrderStatusUseCase {
 	}
 
 	async update (notificationName, status) {
-		if (!status) {
-			throw new MissingParamError('status')
-		}
 
 		if (!notificationName) {
 			throw new MissingParamError('notificationName')
+		}
+
+		if (!status) {
+			throw new MissingParamError('status')
 		}
 
 		await this.socketio.emit(notificationName, status)

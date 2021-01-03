@@ -1,57 +1,64 @@
 const MissingParamError = require('../../utils/errors/missing-param-error')
 const UpdateOrderStatusUseCase = require('./update-order-status-usecase')
 
-const makeSocketio = () => {
-	class SocketioSpy {
+const makeEmitLiveData = () => {
+	class emitLiveDataSpy {
 		async emit (notificationName, payload) {
 			this.notificationName = notificationName
 			this.payload = payload
 		}
 	}
 
-	return new SocketioSpy()
+	return new emitLiveDataSpy()
 }
 
-const makeSocketioWithError = () => {
-	class SocketioSpy {
+const makeEmitLiveDataWithError = () => {
+	class emitLiveDataSpy {
 		async emit () {
 			throw new Error()
 		}	
 	}
 
-	return new SocketioSpy()
+	return new emitLiveDataSpy()
 }
 
 
 const makeSut = () => {
-	const socketioSpy = makeSocketio()
-	const sut = new UpdateOrderStatusUseCase(socketioSpy)
+	const emitLiveDataSpy = makeEmitLiveData()
+	const sut = new UpdateOrderStatusUseCase(emitLiveDataSpy)
 
 	return {
-		socketioSpy,
+		emitLiveDataSpy,
 		sut
 	}
 }
 
 describe('Update Order Status Usecase', () => {
-	test('Should throw if no status is provided', async () => {
+
+	test('Should throw if no notificationName is provided', async () => {
 		const { sut } = makeSut()
 		const promise = sut.update()
+		expect(promise).rejects.toThrow(new MissingParamError('notificationName'))
+	})
+	
+	test('Should throw if no status is provided', async () => {
+		const { sut } = makeSut()
+		const promise = sut.update('any_notificationName')
 		expect(promise).rejects.toThrow(new MissingParamError('status'))
 	})
 
-	test('Should call Socketio with correct params', async () => {
-		const { sut, socketioSpy } = makeSut()
+	test('Should call EmitLiveData with correct params', async () => {
+		const { sut, emitLiveDataSpy } = makeSut()
 		await sut.update('any_notificationName', 'any_status')
-		expect(socketioSpy.notificationName).toBe('any_notificationName')
-		expect(socketioSpy.payload).toBe('any_status')
+		expect(emitLiveDataSpy.notificationName).toBe('any_notificationName')
+		expect(emitLiveDataSpy.payload).toBe('any_status')
 	})
 
 	test('Should throw if invalid dependencies are provided', async () => {
-		const socketio = class SocketioSpy {}
+		class EmitLiveDataSpy {}
 		const suts = [].concat(
 			new UpdateOrderStatusUseCase(),
-			new UpdateOrderStatusUseCase(socketio)
+			new UpdateOrderStatusUseCase(new EmitLiveDataSpy)
 		)
 
 		for (const sut of suts) {
@@ -61,9 +68,9 @@ describe('Update Order Status Usecase', () => {
 	})
 
 	test('Should throw if any dependency throws', async () => {
-		const socketioWithError = makeSocketioWithError()
+		const emitLiveDataWithError = makeEmitLiveDataWithError()
 		const suts = [].concat(
-			new UpdateOrderStatusUseCase(socketioWithError)
+			new UpdateOrderStatusUseCase(emitLiveDataWithError)
 		)
 
 		for (const sut of suts) {
