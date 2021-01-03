@@ -17,7 +17,10 @@ class ChangeOrderStatusRouter {
 
 			await this.updateOrderStatusUseCase.update(status)
 
+			return HttpResponse.ok({})
+
 		} catch (error) {
+
 			return HttpResponse.serverError()
 		}
 	}
@@ -78,5 +81,17 @@ describe('Socketio', () => {
 		}
 		await sut.route(httpRequest)
 		expect(updateOrderStatusUseCaseSpy.status).toBe(httpRequest.body.status)
+	})
+
+	test('Should return 200 if a valid status is provided', async () => {
+		const { sut } = makeSut()
+		const httpRequest = {
+			body: {
+				status: 'any_status'
+			}
+		}
+		const httpResponse = await sut.route(httpRequest)
+		expect(httpResponse.statusCode).toBe(200)
+		expect(httpResponse.body).toEqual({})
 	})
 })
