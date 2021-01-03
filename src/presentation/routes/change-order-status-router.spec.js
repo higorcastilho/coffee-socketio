@@ -3,6 +3,10 @@ const MissingParamError = require('../../utils/errors/missing-param-error')
 const ServerError = require('../errors/server-error')
 
 class ChangeOrderStatusRouter {
+	constructor (updateOrderStatusUseCase) {
+		this.updateOrderStatusUseCase = updateOrderStatusUseCase
+	}
+
 	async route (httpRequest) {
 		try {
 			const { status } = httpRequest.body
@@ -10,15 +14,31 @@ class ChangeOrderStatusRouter {
 			if (!status) {
 				return HttpResponse.badRequest(new MissingParamError('data'))
 			}
+
+			await this.updateOrderStatusUseCase.update(status)
+
 		} catch (error) {
 			return HttpResponse.serverError()
 		}
 	}
 }
 
+const makeUpdateOrderStatusUseCase = () => {
+	class UpdateOrderStatusUseCaseSpy {
+		async update (status) {
+			this.status = status
+		}
+	}
+
+	return new UpdateOrderStatusUseCaseSpy()
+}	
+
+
 const makeSut = () => {
-	const sut = new ChangeOrderStatusRouter()
+	const updateOrderStatusUseCaseSpy = makeUpdateOrderStatusUseCase()
+	const sut = new ChangeOrderStatusRouter(updateOrderStatusUseCaseSpy)
 	return {
+		updateOrderStatusUseCaseSpy,
 		sut
 	}
 }
@@ -47,5 +67,16 @@ describe('Socketio', () => {
 		const httpResponse = await sut.route(httpRequest)
 		expect(httpResponse.statusCode).toBe(500)
 		expect(httpResponse.body.error).toBe(new ServerError().message)
+	})
+
+	test('Should call UpdateOrderStatusUseCase with correct params', async () => {
+		const { sut, updateOrderStatusUseCaseSpy } = makeSut()
+		const httpRequest = {
+			body: {
+				status: 'any_status'
+			}
+		}
+		await sut.route(httpRequest)
+		expect(updateOrderStatusUseCaseSpy.status).toBe(httpRequest.body.status)
 	})
 })
