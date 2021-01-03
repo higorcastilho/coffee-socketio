@@ -5,7 +5,8 @@ const ChangeOrderStatusRouter = require('./change-order-status-router')
 
 const makeUpdateOrderStatusUseCase = () => {
 	class UpdateOrderStatusUseCaseSpy {
-		async update (status) {
+		async update (notificationName, status) {
+			this.notificationName = notificationName
 			this.status = status
 		}
 	}
@@ -34,14 +35,27 @@ const makeSut = () => {
 }
 
 describe('Socketio', () => {
-	test('Should return 400 if no status is provided', async () => {
+	
+	test('Should return 400 if no notificationName is provided', async () => {
 		const { sut } = makeSut()
 		const httpRequest = {
 			body: {}
 		}
 		const httpResponse = await sut.route(httpRequest)
 		expect(httpResponse.statusCode).toBe(400)
-		expect(httpResponse.body.error).toBe(new MissingParamError('data').message)
+		expect(httpResponse.body.error).toBe(new MissingParamError('notificationName').message)
+	})
+
+	test('Should return 400 if no status is provided', async () => {
+		const { sut } = makeSut()
+		const httpRequest = {
+			body: {
+				notificationName: 'any_notificationName'
+			}
+		}
+		const httpResponse = await sut.route(httpRequest)
+		expect(httpResponse.statusCode).toBe(400)
+		expect(httpResponse.body.error).toBe(new MissingParamError('status').message)
 	})
 
 	test('Should return 500 if no httpRequest is provided', async () => {
@@ -63,6 +77,7 @@ describe('Socketio', () => {
 		const { sut, updateOrderStatusUseCaseSpy } = makeSut()
 		const httpRequest = {
 			body: {
+				notificationName: 'any_notificationName',
 				status: 'any_status'
 			}
 		}
@@ -74,6 +89,7 @@ describe('Socketio', () => {
 		const { sut } = makeSut()
 		const httpRequest = {
 			body: {
+				notificationName: 'any_notificationName',
 				status: 'any_status'
 			}
 		}
@@ -92,6 +108,7 @@ describe('Socketio', () => {
 		for (const sut of suts) {
 			const httpRequest = {
 				body: {
+					notificationName: 'any_notificationName',
 					status: 'any_status'
 				}
 			}
@@ -111,6 +128,7 @@ describe('Socketio', () => {
 		for (const sut of suts) {
 			const httpRequest = {
 				body: {
+					notificationName: 'any_notificationName',
 					status: 'any_status'
 				}
 			}

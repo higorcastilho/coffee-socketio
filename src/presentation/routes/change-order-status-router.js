@@ -8,13 +8,16 @@ module.exports = class ChangeOrderStatusRouter {
 
 	async route (httpRequest) {
 		try {
-			const { status } = httpRequest.body
+			const { notificationName, status } = httpRequest.body
 
-			if (!status) {
-				return HttpResponse.badRequest(new MissingParamError('data'))
+			if (!notificationName) {
+				return HttpResponse.badRequest(new MissingParamError('notificationName'))
 			}
-
-			await this.updateOrderStatusUseCase.update(status)
+			
+			if (!status) {
+				return HttpResponse.badRequest(new MissingParamError('status'))
+			}
+			await this.updateOrderStatusUseCase.update(notificationName, status)
 
 			return HttpResponse.ok({})
 
