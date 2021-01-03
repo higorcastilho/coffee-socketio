@@ -1,28 +1,8 @@
 const MissingParamError = require('../errors/missing-param-error')
-
-class EmitLiveData {
-	
-	constructor (emitter) {
-		this.emitter = emitter
-	}
-
-	async send (notificationName, payload) {
-
-		if (!notificationName) {
-			throw new MissingParamError('notificationName')
-		}
-
-		if (!payload) {
-			throw new MissingParamError('payload')
-		}
-
-		await this.emitter.emit(notificationName, payload)
-	}
-}
+const EmitLiveData = require('./emit-live-data')
 
 //mocking socketio because io instance of socketio is gonna be injected 
 //inside EmitLiveData on ChangeOrderStatusRouterComposer, on main layer
-
 const makeSocketio = () => {
 	class Socketio {
 		async emit (notificationName, payload) {

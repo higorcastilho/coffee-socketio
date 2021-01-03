@@ -11,4 +11,4 @@ const http = require('http').createServer(app)
 
 const emitter = setupLiveDataEmitter(http)
 
-module.exports = { app, http, io }
+module.exports = { app, http, emitter }
