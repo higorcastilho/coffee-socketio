@@ -29,6 +29,16 @@ const makeSocketio = () => {
 	return new SocketioSpy()
 }
 
+const makeSocketioWithError = () => {
+	class SocketioSpy {
+		async emit () {
+			throw new Error()
+		}	
+	}
+
+	return new SocketioSpy()
+}
+
 
 const makeSut = () => {
 	const socketioSpy = makeSocketio()
@@ -59,6 +69,18 @@ describe('Update Order Status Usecase', () => {
 		const suts = [].concat(
 			new UpdateOrderStatusUseCase(),
 			new UpdateOrderStatusUseCase(socketio)
+		)
+
+		for (const sut of suts) {
+			const promise = sut.update('any_notificationName', 'any_status')
+			expect(promise).rejects.toThrow()
+		}
+	})
+
+	test('Should throw if any dependency throws', async () => {
+		const socketioWithError = makeSocketioWithError()
+		const suts = [].concat(
+			new UpdateOrderStatusUseCase(socketioWithError)
 		)
 
 		for (const sut of suts) {
