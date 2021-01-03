@@ -3,7 +3,7 @@ const UpdateOrderStatusUseCase = require('./update-order-status-usecase')
 
 const makeEmitLiveData = () => {
 	class emitLiveDataSpy {
-		async emit (notificationName, payload) {
+		async send (notificationName, payload) {
 			this.notificationName = notificationName
 			this.payload = payload
 		}
@@ -14,7 +14,7 @@ const makeEmitLiveData = () => {
 
 const makeEmitLiveDataWithError = () => {
 	class emitLiveDataSpy {
-		async emit () {
+		async send () {
 			throw new Error()
 		}	
 	}

@@ -1,8 +1,8 @@
 const MissingParamError = require('../../utils/errors/missing-param-error')
 
 module.exports = class UpdateOrderStatusUseCase {
-	constructor (socketio) {
-		this.socketio = socketio
+	constructor (emitLiveData) {
+		this.emitLiveData = emitLiveData
 	}
 
 	async update (notificationName, status) {
@@ -15,6 +15,6 @@ module.exports = class UpdateOrderStatusUseCase {
 			throw new MissingParamError('status')
 		}
 
-		await this.socketio.emit(notificationName, status)
+		await this.emitLiveData.send(notificationName, status)
 	}
 }
