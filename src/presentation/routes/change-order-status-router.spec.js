@@ -34,6 +34,16 @@ const makeUpdateOrderStatusUseCase = () => {
 	}
 
 	return new UpdateOrderStatusUseCaseSpy()
+}
+
+const makeUpdateOrderStatusUseCaseWithError = () => {
+	class UpdateOrderStatusUseCaseSpy {
+		async update () {
+			throw new Error()
+		}
+	}
+
+	return new UpdateOrderStatusUseCaseSpy()
 }	
 
 
@@ -100,6 +110,25 @@ describe('Socketio', () => {
 		const suts = [].concat(
 			new ChangeOrderStatusRouter(),
 			new ChangeOrderStatusRouter(updateOrderStatusUseCaseSpy)
+		)
+
+		for (const sut of suts) {
+			const httpRequest = {
+				body: {
+					status: 'any_status'
+				}
+			}
+
+			const httpResponse = await sut.route(httpRequest)
+			expect(httpResponse.statusCode).toBe(500)
+			expect(httpResponse.body.error).toBe(new ServerError().message)
+		}
+	})
+
+	test('Should throw if any dependency throws', async () => {
+		const updateOrderStatusUseCaseWithError = makeUpdateOrderStatusUseCaseWithError()
+		const suts = [].concat(
+			new ChangeOrderStatusRouter(updateOrderStatusUseCaseWithError)
 		)
 
 		for (const sut of suts) {
