@@ -53,4 +53,17 @@ describe('Update Order Status Usecase', () => {
 		expect(socketioSpy.notificationName).toBe('any_notificationName')
 		expect(socketioSpy.payload).toBe('any_status')
 	})
+
+	test('Should throw if invalid dependencies are provided', async () => {
+		const socketio = class SocketioSpy {}
+		const suts = [].concat(
+			new UpdateOrderStatusUseCase(),
+			new UpdateOrderStatusUseCase(socketio)
+		)
+
+		for (const sut of suts) {
+			const promise = sut.update('any_notificationName', 'any_status')
+			expect(promise).rejects.toThrow()
+		}
+	})
 })
