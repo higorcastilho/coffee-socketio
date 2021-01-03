@@ -1,30 +1,7 @@
 const HttpResponse = require('../helpers/http-response')
 const MissingParamError = require('../../utils/errors/missing-param-error')
 const ServerError = require('../errors/server-error')
-
-class ChangeOrderStatusRouter {
-	constructor (updateOrderStatusUseCase) {
-		this.updateOrderStatusUseCase = updateOrderStatusUseCase
-	}
-
-	async route (httpRequest) {
-		try {
-			const { status } = httpRequest.body
-
-			if (!status) {
-				return HttpResponse.badRequest(new MissingParamError('data'))
-			}
-
-			await this.updateOrderStatusUseCase.update(status)
-
-			return HttpResponse.ok({})
-
-		} catch (error) {
-
-			return HttpResponse.serverError()
-		}
-	}
-}
+const ChangeOrderStatusRouter = require('./change-order-status-router')
 
 const makeUpdateOrderStatusUseCase = () => {
 	class UpdateOrderStatusUseCaseSpy {
