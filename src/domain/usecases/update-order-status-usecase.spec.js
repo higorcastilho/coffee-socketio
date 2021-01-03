@@ -1,22 +1,5 @@
 const MissingParamError = require('../../utils/errors/missing-param-error')
-
-class UpdateOrderStatusUseCase {
-	constructor (socketio) {
-		this.socketio = socketio
-	}
-
-	async update (notificationName, status) {
-		if (!status) {
-			throw new MissingParamError('status')
-		}
-
-		if (!notificationName) {
-			throw new MissingParamError('notificationName')
-		}
-
-		await this.socketio.emit(notificationName, status)
-	}
-}
+const UpdateOrderStatusUseCase = require('./update-order-status-usecase')
 
 const makeSocketio = () => {
 	class SocketioSpy {
