@@ -94,4 +94,24 @@ describe('Socketio', () => {
 		expect(httpResponse.statusCode).toBe(200)
 		expect(httpResponse.body).toEqual({})
 	})
+
+	test('Should throw if invalid dependencies are provided', async () => {
+		const updateOrderStatusUseCaseSpy = class UpdateOrderStatusUseCaseSpy {}
+		const suts = [].concat(
+			new ChangeOrderStatusRouter(),
+			new ChangeOrderStatusRouter(updateOrderStatusUseCaseSpy)
+		)
+
+		for (const sut of suts) {
+			const httpRequest = {
+				body: {
+					status: 'any_status'
+				}
+			}
+
+			const httpResponse = await sut.route(httpRequest)
+			expect(httpResponse.statusCode).toBe(500)
+			expect(httpResponse.body.error).toBe(new ServerError().message)
+		}
+	})
 })
