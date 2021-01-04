@@ -1,4 +1,4 @@
 module.exports = (req, res, next) => {
-	app.type('json')
+	res.type('json')
 	next()
 }
