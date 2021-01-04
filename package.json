@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "start:tested": "nodemon src/main/index.js",
+    "start": "nodemon src/main/index.js",
     "test": "jest --no-cache"
   },
   "keywords": [],
