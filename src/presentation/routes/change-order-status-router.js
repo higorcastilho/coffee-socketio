@@ -6,7 +6,7 @@ module.exports = class ChangeOrderStatusRouter {
 	async route (httpRequest) {
 		try {
 			const { notificationName, data } = httpRequest.body
-			
+			console.log(notificationName, data)
 			if (!notificationName) {
 				return HttpResponse.badRequest(new MissingParamError('notificationName'))
 			}
